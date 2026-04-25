@@ -19,13 +19,13 @@ export default function HomePage() {
   const amountInUsd = useMemo(() => {
     if (!isCustom) return selectedAmount;
     const parsed = Number(customAmount);
-    if (!Number.isFinite(parsed)) return 0;
-    return Math.max(1, Math.floor(parsed));
+    if (!Number.isFinite(parsed) || parsed <= 0) return 0;
+    return Math.max(0.01, Math.round(parsed * 100) / 100);
   }, [customAmount, isCustom, selectedAmount]);
 
   const handleCheckout = async () => {
     setError(null);
-    const amountCents = amountInUsd * 100;
+    const amountCents = Math.round(amountInUsd * 100);
     if (!email.trim() || !name.trim()) {
       setError("Name and email are required.");
       return;
@@ -157,7 +157,6 @@ export default function HomePage() {
               {isLoading ? "Creating checkout..." : `Tip $${amountInUsd}`}
             </button>
           </div>
-          {error && <p className="error">{error}</p>}
         </section>
 
         <section className="section">
@@ -176,6 +175,7 @@ export default function HomePage() {
             Endpoint: <span className="code">/api/agent-tip</span>
           </p>
         </section>
+        {error && <p className="error">{error}</p>}
       </div>
     </main>
   );
