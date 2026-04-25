@@ -1,0 +1,137 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #f8d9ff 0%, #f5f3ff 35%, #eef2ff 100%);
+  color: #1f2937;
+}
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.card {
+  width: min(900px, 100%);
+  background: #ffffffdd;
+  backdrop-filter: blur(6px);
+  border: 1px solid #e9d5ff;
+  border-radius: 20px;
+  box-shadow: 0 24px 48px rgba(76, 29, 149, 0.12);
+  padding: 1.5rem;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.6rem, 3vw, 2.3rem);
+}
+
+.subtitle {
+  margin: 0.35rem 0 0;
+  color: #6b21a8;
+}
+
+.section {
+  border: 1px solid #e9d5ff;
+  border-radius: 14px;
+  padding: 1rem;
+  background: #faf5ff;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+  margin-bottom: 0.8rem;
+}
+
+.field input,
+.field textarea {
+  border: 1px solid #d8b4fe;
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.98rem;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+.amountGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.amountButton {
+  border: 1px solid #d8b4fe;
+  border-radius: 999px;
+  background: #fff;
+  padding: 0.5rem 0.95rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.amountButton.active {
+  background: #7c3aed;
+  color: #fff;
+  border-color: #7c3aed;
+}
+
+.actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.primary {
+  border: 0;
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: #7c3aed;
+  color: #fff;
+}
+
+.primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.secondary {
+  border: 1px solid #c4b5fd;
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: #ede9fe;
+  color: #4c1d95;
+}
+
+.status {
+  margin: 0;
+  color: #4b5563;
+}
+
+.error {
+  margin: 0;
+  color: #dc2626;
+}
+
+.code {
+  font-family: Consolas, Monaco, "Courier New", monospace;
+  background: #f3e8ff;
+  border-radius: 6px;
+  padding: 0.15rem 0.35rem;
+}
