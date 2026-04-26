@@ -140,14 +140,15 @@ body {
 .chatMessages {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  max-height: 340px;
+  gap: 1rem;
+  max-height: min(520px, 60vh);
   overflow-y: auto;
-  padding: 0.75rem;
+  padding: 1rem;
   border: 1px solid #e9d5ff;
   border-radius: 12px;
   background: #fff;
   margin-bottom: 0.75rem;
+  scroll-behavior: smooth;
 }
 
 .chatEmpty {
@@ -155,54 +156,296 @@ body {
   color: #9ca3af;
   font-style: italic;
   text-align: center;
-  padding: 1rem 0;
+  padding: 2rem 0;
+}
+
+/* Row = avatar + bubble */
+.chatRow {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+}
+
+.chatRow--user {
+  flex-direction: row-reverse;
+}
+
+.chatAvatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.chatAvatar--assistant {
+  background: #f3e8ff;
+  border: 1px solid #d8b4fe;
+}
+
+.chatAvatar--user {
+  background: #ede9fe;
+  border: 1px solid #c4b5fd;
 }
 
 .chatBubble {
-  max-width: 82%;
+  max-width: 78%;
   border-radius: 14px;
-  padding: 0.6rem 0.85rem;
-  line-height: 1.5;
+  padding: 0.65rem 0.9rem;
+  line-height: 1.55;
 }
 
-.chatBubble p {
-  margin: 0;
-  white-space: pre-wrap;
-}
-
-.chatBubble.user {
-  align-self: flex-end;
+.chatBubble--user {
   background: #7c3aed;
   color: #fff;
   border-bottom-right-radius: 4px;
 }
 
-.chatBubble.assistant {
-  align-self: flex-start;
+.chatBubble--assistant {
   background: #f3e8ff;
   color: #1f2937;
   border-bottom-left-radius: 4px;
 }
 
-.chatProducts {
+.chatMeta {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 0.5rem;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
 }
 
-.chatProduct {
+.chatRole {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.65;
+}
+
+.chatTime {
+  font-size: 0.7rem;
+  opacity: 0.5;
+}
+
+.chatContent p {
+  margin: 0 0 0.4rem;
+  white-space: pre-wrap;
+}
+
+.chatContent p:last-child {
+  margin-bottom: 0;
+}
+
+.chatContent ul {
+  margin: 0.3rem 0 0.4rem 1.2rem;
+  padding: 0;
+}
+
+.chatContent li {
+  margin-bottom: 0.2rem;
+}
+
+/* Product cards */
+.productCards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+/* Top 3 picks */
+.top3Section {
+  margin-top: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.top3Label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #7c3aed;
+  margin-bottom: 0.1rem;
+}
+
+.top3Card {
+  background: #fff;
+  border: 1.5px solid #c4b5fd;
+  border-radius: 10px;
+  padding: 0.65rem 0.85rem;
+  position: relative;
+}
+
+.top3CardHead {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.3rem;
+}
+
+.top3Rank {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #7c3aed;
   background: #ede9fe;
-  color: #5b21b6;
   border-radius: 999px;
-  padding: 0.2rem 0.6rem;
+  padding: 0.1rem 0.45rem;
+  flex-shrink: 0;
+}
+
+.top3Meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.35rem;
+}
+
+.top3Category {
+  font-size: 0.72rem;
+  background: #e0f2fe;
+  color: #0369a1;
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.top3Reason {
+  margin: 0.35rem 0 0;
   font-size: 0.82rem;
+  color: #4b5563;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.productCard {
+  background: #fff;
+  border: 1px solid #e9d5ff;
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+}
+
+.productCardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.productName {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.productPrice {
+  background: #7c3aed;
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.productMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.4rem;
+}
+
+.productRoast {
+  font-size: 0.75rem;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
   font-weight: 600;
 }
 
-.chatTyping {
-  color: #7c3aed;
-  font-style: italic;
+.productOrigin {
+  font-size: 0.75rem;
+  background: #dcfce7;
+  color: #166534;
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+  font-weight: 600;
+}
+
+.flavorChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.4rem;
+}
+
+.flavorChip {
+  background: #ede9fe;
+  color: #5b21b6;
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.productDesc {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #6b7280;
+  line-height: 1.45;
+}
+
+/* Pay prompt */
+.payPrompt {
+  margin-top: 0.65rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid #e9d5ff;
+}
+
+.payPrompt p {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+
+.payActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.checkoutBtn {
+  display: block;
+  margin-top: 0.65rem;
+  width: 100%;
+}
+
+/* Typing dots */
+.chatTypingDots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.chatTypingDots span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #7c3aed;
+  animation: typingBounce 1.2s infinite ease-in-out;
+}
+
+.chatTypingDots span:nth-child(2) { animation-delay: 0.2s; }
+.chatTypingDots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-5px); opacity: 1; }
 }
 
 .chatForm {

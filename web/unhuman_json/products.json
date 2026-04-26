@@ -1,0 +1,206 @@
+{
+  "products": [
+    {
+      "category": "coffee",
+      "slug": "colombia-so",
+      "name": "Colombia SO",
+      "description": "Single origin from Huila & Cauca. No blends, no noise — just one clean cup with cherry, grape, plum, chocolate, and cane sugar.",
+      "origin": "Colombia — Huila & Cauca",
+      "roastLevel": "Light-Medium",
+      "flavorNotes": [
+        "Cherry",
+        "Grape",
+        "Plum",
+        "Chocolate",
+        "Cane Sugar"
+      ],
+      "priceUsd": "$24.00",
+      "priceCents": 2400,
+      "skus": {
+        "beans": "COF-WHB-12O-COL-BOX",
+        "ground": "COF-GND-12O-COL-BOX"
+      }
+    },
+    {
+      "category": "coffee",
+      "slug": "rock-creek",
+      "name": "Rock Creek",
+      "description": "Four countries, one cup. Brazil brings body, Colombia brings smoothness, Guatemala brings brightness, Ethiopia brings the rest. Toffee, dark chocolate, citrus.",
+      "origin": "Brazil / Colombia / Guatemala / Ethiopia",
+      "roastLevel": "Medium",
+      "flavorNotes": [
+        "Toffee",
+        "Dark Chocolate",
+        "Citrus"
+      ],
+      "priceUsd": "$24.00",
+      "priceCents": 2400,
+      "skus": {
+        "beans": "COF-WHB-12O-RCK-BOX",
+        "ground": "COF-GND-12O-RCK-BOX"
+      }
+    },
+    {
+      "category": "coffee",
+      "slug": "cascade-blend",
+      "name": "Cascades Blend",
+      "description": "No tricks, just a solid cup. Brazilian Cerrado brings the chocolate foundation, Mexican Chiapas brings the structure. Cocoa, toasted nut, full body.",
+      "origin": "Brazil / Mexico",
+      "roastLevel": "Medium-Dark",
+      "flavorNotes": [
+        "Cocoa",
+        "Toasted Nut",
+        "Full Body"
+      ],
+      "priceUsd": "$24.00",
+      "priceCents": 2400,
+      "skus": {
+        "beans": "COF-WHB-12O-CSD-BOX",
+        "ground": "COF-GND-12O-CSD-BOX"
+      }
+    },
+    {
+    "category": "energy-shot",
+    "slug": "lightning-focus",
+    "name": "Lightning Focus Shot",
+    "description": "Fast-acting energy shot built for sleep-deprived minds. Sharp boost without the crash. Citrus, slightly bitter, clean finish.",
+    "caffeineMg": 200,
+    "flavorNotes": [
+      "Citrus",
+      "Bitter",
+      "Clean"
+    ],
+    "priceUsd": "$3.50",
+    "priceCents": 350,
+    "skus": {
+      "single": "ENG-SHOT-LTG-1PK",
+      "pack": "ENG-SHOT-LTG-12PK"
+    }
+  },
+  {
+    "category": "energy-shot",
+    "slug": "berry-charge",
+    "name": "Berry Charge Shot",
+    "description": "Smooth berry-flavored energy shot with moderate caffeine. Designed for sustained focus during long coding sessions.",
+    "caffeineMg": 150,
+    "flavorNotes": [
+      "Berry",
+      "Sweet",
+      "Mild Tart"
+    ],
+    "priceUsd": "$3.00",
+    "priceCents": 300,
+    "skus": {
+      "single": "ENG-SHOT-BRY-1PK",
+      "pack": "ENG-SHOT-BRY-12PK"
+    }
+  },
+  {
+    "category": "energy-bar",
+    "slug": "choco-protein-bar",
+    "name": "Choco Protein Bar",
+    "description": "Dense and satisfying bar with chocolate and nuts. Keeps you full and stable when meals are skipped.",
+    "calories": 250,
+    "proteinG": 12,
+    "flavorNotes": [
+      "Chocolate",
+      "Nutty",
+      "Rich"
+    ],
+    "priceUsd": "$2.50",
+    "priceCents": 250,
+    "skus": {
+      "single": "ENG-BAR-CHO-1PK",
+      "box": "ENG-BAR-CHO-12PK"
+    }
+  },
+  {
+    "category": "energy-bar",
+    "slug": "peanut-caramel-bar",
+    "name": "Peanut Caramel Bar",
+    "description": "Sweet and salty combo with quick carbs and lasting energy. Perfect for late-night momentum.",
+    "calories": 270,
+    "proteinG": 10,
+    "flavorNotes": [
+      "Peanut",
+      "Caramel",
+      "Salty"
+    ],
+    "priceUsd": "$2.75",
+    "priceCents": 275,
+    "skus": {
+      "single": "ENG-BAR-PNT-1PK",
+      "box": "ENG-BAR-PNT-12PK"
+    }
+  },
+  {
+    "category": "energy-drink",
+    "slug": "zero-sugar-blast",
+    "name": "Zero Sugar Blast",
+    "description": "Carbonated energy drink with zero sugar and a clean, crisp taste. High caffeine, no heaviness.",
+    "caffeineMg": 160,
+    "flavorNotes": [
+      "Citrus",
+      "Crisp",
+      "Light"
+    ],
+    "priceUsd": "$2.99",
+    "priceCents": 299,
+    "skus": {
+      "can": "ENG-DRK-ZSB-1CAN",
+      "pack": "ENG-DRK-ZSB-12PK"
+    }
+  },
+  {
+    "category": "snack",
+    "slug": "focus-gummies",
+    "name": "Focus Gummies",
+    "description": "Caffeinated gummies for a fun, controlled energy boost. Easy to dose, easy to share.",
+    "caffeineMg": 100,
+    "flavorNotes": [
+      "Fruit",
+      "Sweet",
+      "Chewy"
+    ],
+    "priceUsd": "$4.50",
+    "priceCents": 450,
+    "skus": {
+      "pack": "ENG-GUM-FCS-1PK",
+      "bulk": "ENG-GUM-FCS-6PK"
+    }
+  },
+  {
+    "category": "bundle",
+    "slug": "all-nighter-kit",
+    "name": "All-Nighter Survival Kit",
+    "description": "Curated combo of energy shots, bars, and snacks to keep you going through the night. Balanced for quick boost + sustained energy.",
+    "includes": [
+      "2x Lightning Focus Shot",
+      "2x Choco Protein Bar",
+      "1x Focus Gummies"
+    ],
+    "priceUsd": "$12.00",
+    "priceCents": 1200,
+    "skus": {
+      "bundle": "BND-ALLNGT-STD"
+    }
+  },
+  {
+    "category": "fruit",
+    "slug": "orange",
+    "name": "Orange",
+    "description": "Fresh and juicy oranges, perfect for a healthy snack or juice.",
+    "includes": [
+      "Navel Orange",
+      "Valencia Orange"
+    ],
+    "priceUsd": "$12.00",
+    "priceCents": 1200,
+    "skus": {
+      "each": "FRT-ORG-NVL-EA",
+      "bag_3lb": "FRT-ORG-NVL-3LB",
+      "bag_5lb": "FRT-ORG-NVL-5LB"
+    }
+  }
+  ]
+}

@@ -1,7 +1,52 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, ReactNode } from "react";
 import { useCheckout } from "@moneydevkit/nextjs";
+
+// ── Markdown helpers ─────────────────────────────────────────────────────────
+function renderInline(text: string): ReactNode[] {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) =>
+    part.startsWith("**") && part.endsWith("**") ? (
+      <strong key={i}>{part.slice(2, -2)}</strong>
+    ) : (
+      part
+    )
+  );
+}
+
+function renderMarkdown(text: string) {
+  const lines = text.split("\n");
+  const elements: ReactNode[] = [];
+  let listBuf: string[] = [];
+
+  const flushList = () => {
+    if (listBuf.length === 0) return;
+    elements.push(
+      <ul key={`ul-${elements.length}`}>
+        {listBuf.map((item, i) => (
+          <li key={i}>{renderInline(item)}</li>
+        ))}
+      </ul>
+    );
+    listBuf = [];
+  };
+
+  lines.forEach((line, idx) => {
+    if (/^[-*•]\s/.test(line)) {
+      listBuf.push(line.slice(2));
+    } else {
+      flushList();
+      if (line.trim() === "") {
+        if (idx > 0) elements.push(<br key={`br-${idx}`} />);
+      } else {
+        elements.push(<p key={`p-${idx}`}>{renderInline(line)}</p>);
+      }
+    }
+  });
+  flushList();
+  return <>{elements}</>;
+}
 
 export default function HomePage() {
   const { createCheckout, isLoading } = useCheckout();
@@ -11,7 +56,34 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
 
   // Chat
-  type ChatMessage = { role: "user" | "assistant"; content: string; products?: { name?: string; priceUsd?: string; slug?: string }[]; payAmount?: number; payDisplay?: string; payPrompt?: { amount: number; display: string } };
+  type Product = {
+    name?: string;
+    priceUsd?: string;
+    slug?: string;
+    description?: string;
+    origin?: string;
+    roastLevel?: string;
+    flavorNotes?: string[];
+  };
+  type Top3Pick = {
+    slug: string;
+    name: string;
+    reason: string;
+    priceUsd?: string;
+    category?: string;
+    roastLevel?: string;
+    flavorNotes?: string[];
+  };
+  type ChatMessage = {
+    role: "user" | "assistant";
+    content: string;
+    products?: Product[];
+    top3?: Top3Pick[];
+    payAmount?: number;
+    payDisplay?: string;
+    payPrompt?: { amount: number; display: string };
+    timestamp?: number;
+  };
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
@@ -51,7 +123,7 @@ export default function HomePage() {
       setError(result.error.message);
       return;
     }
-    window.location.href = result.data.checkoutUrl;
+    window.open(result.data.checkoutUrl, "_blank", "noopener,noreferrer");
   };
 
   const handlePayYes = (msgIndex: number, amount: number, display: string) => {
@@ -68,11 +140,19 @@ export default function HomePage() {
     );
   };
 
+  const handleCancelConfirmed = (msgIndex: number) => {
+    setMessages((prev) =>
+      prev.map((m, i) =>
+        i === msgIndex ? { ...m, payAmount: undefined, payDisplay: undefined } : m
+      )
+    );
+  };
+
   const sendMessage = async () => {
     const text = chatInput.trim();
     if (!text || chatLoading) return;
     setChatInput("");
-    const userMsg: ChatMessage = { role: "user", content: text };
+    const userMsg: ChatMessage = { role: "user", content: text, timestamp: Date.now() };
     setMessages((prev) => [...prev, userMsg]);
 
     // Detect "pay $X" intent — amount is X/100 USD
@@ -87,6 +167,7 @@ export default function HomePage() {
           content: `Ready to send a payment of $${originalValue}. Hit the button below to confirm.`,
           payAmount: amountUsd,
           payDisplay: originalValue,
+          timestamp: Date.now(),
         },
       ]);
       return;
@@ -104,15 +185,16 @@ export default function HomePage() {
       const priceMatch = (data.reply as string).match(/\$(\d+(?:\.\d{1,2})?)/);
       const assistantMsg: ChatMessage = {
         role: "assistant",
-        content: data.reply,
+        content: data.reply ?? "",
         products: data.referenced_products,
-        ...(priceMatch ? { payPrompt: { amount: parseFloat(priceMatch[1]), display: priceMatch[1] } } : {}),
+        top3: data.top3 ?? [],
+        timestamp: Date.now(),
       };
       setMessages((prev) => [...prev, assistantMsg]);
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Sorry, something went wrong. Please try again." },
+        { role: "assistant", content: "Sorry, something went wrong. Please try again.", timestamp: Date.now() },
       ]);
     } finally {
       setChatLoading(false);
@@ -134,45 +216,73 @@ export default function HomePage() {
               <p className="chatEmpty">Ask me anything — e.g. &ldquo;What&apos;s a good light roast?&rdquo;</p>
             )}
             {messages.map((msg, i) => (
-              <div key={i} className={`chatBubble ${msg.role}`}>
-                <p>{msg.content}</p>
-                {msg.role === "assistant" && msg.products && msg.products.length > 0 && (
-                  <div className="chatProducts">
-                    {msg.products.map((p, j) => (
-                      <span key={j} className="chatProduct">
-                        {p.name}{p.priceUsd ? ` — ${p.priceUsd}` : ""}
+              <div key={i} className={`chatRow chatRow--${msg.role}`}>
+                {msg.role === "assistant" && <div className="chatAvatar chatAvatar--assistant">☕</div>}
+                <div className={`chatBubble chatBubble--${msg.role}`}>
+                  <div className="chatMeta">
+                    <span className="chatRole">{msg.role === "user" ? "You" : "Assistant"}</span>
+                    {msg.timestamp && (
+                      <span className="chatTime">
+                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </span>
-                    ))}
+                    )}
                   </div>
-                )}
-                {msg.role === "assistant" && msg.payPrompt && msg.payAmount === undefined && (
-                  <div style={{ marginTop: "8px" }}>
-                    <p>Would you like to pay ${msg.payPrompt.display}?</p>
-                    <button
-                      className="primary"
-                      style={{ marginRight: "8px" }}
-                      onClick={() => handlePayYes(i, msg.payPrompt!.amount, msg.payPrompt!.display)}
-                    >
-                      Yes
-                    </button>
-                    <button onClick={() => handlePayNo(i)}>No</button>
-                  </div>
-                )}
-                {msg.role === "assistant" && msg.payAmount !== undefined && (
-                  <button
-                    className="primary"
-                    style={{ marginTop: "8px" }}
-                    onClick={() => handleChatCheckout(msg.payAmount!)}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Creating checkout..." : `Confirm to pay $${msg.payDisplay ?? msg.payAmount!.toFixed(2)}`}
-                  </button>
-                )}
+                  <div className="chatContent">{renderMarkdown(msg.content)}</div>
+                  {msg.role === "assistant" && msg.top3 && msg.top3.length > 0 && (
+                    <div className="top3Section">
+                      <div className="top3Label">Top picks for you</div>
+                      {msg.top3.map((pick, j) => (
+                        <div key={j} className="top3Card">
+                          <div className="top3CardHead">
+                            <span className="top3Rank">#{j + 1}</span>
+                            <span className="productName">{pick.name}</span>
+                            {pick.priceUsd && <span className="productPrice">{pick.priceUsd}</span>}
+                          </div>
+                          <div className="top3Meta">
+                            {pick.category && <span className="top3Category">{pick.category}</span>}
+                            {pick.roastLevel && <span className="productRoast">{pick.roastLevel}</span>}
+                          </div>
+                          {pick.flavorNotes && pick.flavorNotes.length > 0 && (
+                            <div className="flavorChips">
+                              {pick.flavorNotes.map((note, k) => (
+                                <span key={k} className="flavorChip">{note}</span>
+                              ))}
+                            </div>
+                          )}
+                          <p className="top3Reason">💡 {pick.reason}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {msg.role === "assistant" && msg.payPrompt && msg.payAmount === undefined && (
+                    <div className="payPrompt">
+                      <p>Would you like to pay ${msg.payPrompt.display}?</p>
+                      <div className="payActions">
+                        <button className="primary" onClick={() => handlePayYes(i, msg.payPrompt!.amount, msg.payPrompt!.display)}>Yes, pay</button>
+                        <button className="secondary" onClick={() => handlePayNo(i)}>No thanks</button>
+                      </div>
+                    </div>
+                  )}
+                  {msg.role === "assistant" && msg.payAmount !== undefined && (
+                    <div className="payActions" style={{ marginTop: "0.65rem" }}>
+                      <button className="primary" onClick={() => handleChatCheckout(msg.payAmount!)} disabled={isLoading}>
+                        {isLoading ? "Creating checkout…" : `Confirm payment of $${msg.payDisplay ?? msg.payAmount!.toFixed(2)}`}
+                      </button>
+                      <button className="secondary" onClick={() => handleCancelConfirmed(i)} disabled={isLoading}>
+                        No thanks
+                      </button>
+                    </div>
+                  )}
+                </div>
+                {msg.role === "user" && <div className="chatAvatar chatAvatar--user">👤</div>}
               </div>
             ))}
             {chatLoading && (
-              <div className="chatBubble assistant">
-                <span className="chatTyping">Thinking…</span>
+              <div className="chatRow chatRow--assistant">
+                <div className="chatAvatar chatAvatar--assistant">☕</div>
+                <div className="chatBubble chatBubble--assistant">
+                  <div className="chatTypingDots"><span /><span /><span /></div>
+                </div>
               </div>
             )}
             <div ref={messagesEndRef} />

@@ -1,19 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
-import coffeeData from "../../../unhuman_json/coffee.json";
+import productsData from "../../../unhuman_json/products.json";
 
 // ---------------------------------------------------------------------------
 // Product catalog — statically imported so Vercel bundles them at build time.
-// To add more product files, import them here and spread into ALL_PRODUCTS.
 // ---------------------------------------------------------------------------
 type RawProduct = Record<string, unknown>;
 
-const ALL_PRODUCTS: RawProduct[] = [
-  ...((coffeeData as { products?: RawProduct[] }).products ?? []).map((p) => ({
-    ...p,
-    sourceFile: "coffee.json",
-  })),
-];
+const ALL_PRODUCTS: RawProduct[] = (
+  (productsData as { products?: RawProduct[] }).products ?? []
+);
 
 // ---------------------------------------------------------------------------
 // Groq client — only reads env vars on the server, never exposed to the browser
@@ -24,7 +20,7 @@ const MODEL = process.env.GROQ_MODEL ?? "llama3-8b-8192";
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-function selectRelevant(query: string, products: RawProduct[], limit = 4): RawProduct[] {
+function selectRelevant(query: string, products: RawProduct[], limit = 8): RawProduct[] {
   const terms = query
     .toLowerCase()
     .split(/\s+/)
@@ -40,6 +36,24 @@ function selectRelevant(query: string, products: RawProduct[], limit = 4): RawPr
   scored.sort((a, b) => b.score - a.score);
   const top = scored.filter((s) => s.score > 0).map((s) => s.p);
   return top.length ? top.slice(0, limit) : products.slice(0, limit);
+}
+
+type Top3Pick = { slug: string; name: string; reason: string };
+
+function parseStructuredReply(raw: string): { reply: string; top3: Top3Pick[] } {
+  // Try to find a JSON block (```json ... ``` or bare { ... })
+  const jsonMatch = raw.match(/```json\s*([\s\S]*?)```/) ?? raw.match(/(\{[\s\S]*\})/);
+  if (jsonMatch) {
+    try {
+      const parsed = JSON.parse(jsonMatch[1]);
+      if (parsed.reply && Array.isArray(parsed.top3)) {
+        return { reply: parsed.reply, top3: parsed.top3 };
+      }
+    } catch {
+      // fall through to plain text
+    }
+  }
+  return { reply: raw, top3: [] };
 }
 
 // ---------------------------------------------------------------------------
@@ -65,9 +79,24 @@ export async function POST(req: NextRequest) {
 
   const references = selectRelevant(message, ALL_PRODUCTS);
 
-  const systemPrompt = `You are a friendly shopping assistant for a specialty coffee store. \
-Recommend products only from the catalog below. Be concise and helpful. \
-If no product fits the request, say so clearly.
+  const systemPrompt = `You are a friendly shopping assistant. \
+You sell coffee, energy shots, energy bars, energy drinks, snacks, bundles, and fruit. \
+Recommend products ONLY from the catalog below.
+
+ALWAYS respond with valid JSON in this exact shape — no extra keys, no markdown outside the JSON block:
+{
+  "reply": "<short conversational message, 1-3 sentences>",
+  "top3": [
+    { "slug": "<slug>", "name": "<product name>", "reason": "<one short sentence why it fits>" },
+    { "slug": "<slug>", "name": "<product name>", "reason": "<one short sentence why it fits>" },
+    { "slug": "<slug>", "name": "<product name>", "reason": "<one short sentence why it fits>" }
+  ]
+}
+
+Rules:
+- top3 must always contain exactly 3 items chosen from the catalog.
+- reason must be one concise sentence tailored to the user's request.
+- If the user mentions a specific category, prefer products from that category first.
 
 Catalog:
 ${JSON.stringify(references, null, 2)}`;
@@ -91,10 +120,16 @@ ${JSON.stringify(references, null, 2)}`;
       ],
     });
 
-    const reply =
-      completion.choices[0]?.message?.content ?? "I could not generate a response.";
+    const raw = completion.choices[0]?.message?.content ?? "{}";
+    const { reply, top3 } = parseStructuredReply(raw);
 
-    return NextResponse.json({ reply, referenced_products: references });
+    // Attach full product details to each top3 pick
+    const top3WithDetails = top3.map((pick) => {
+      const product = ALL_PRODUCTS.find((p) => (p as { slug?: string }).slug === pick.slug);
+      return { ...pick, ...(product ?? {}) };
+    });
+
+    return NextResponse.json({ reply, top3: top3WithDetails, referenced_products: references });
   } catch (err) {
     console.error("Groq API error:", err);
     return NextResponse.json({ error: "LLM request failed" }, { status: 502 });
