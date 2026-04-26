@@ -1,23 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCheckout } from "@moneydevkit/nextjs";
-
-const PRESET_AMOUNTS = [5, 10, 25] as const;
 
 export default function HomePage() {
   const { createCheckout, isLoading } = useCheckout();
-  const [selectedAmount, setSelectedAmount] = useState<number>(10);
-  const [isCustom, setIsCustom] = useState(false);
-  const [customAmount, setCustomAmount] = useState("15");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [note, setNote] = useState("Your latest AI art stream was magical.");
+  const [name] = useState(process.env.NEXT_PUBLIC_USER_NAME ?? "");
+  const [email] = useState(process.env.NEXT_PUBLIC_USER_EMAIL ?? "");
+  const [note] = useState("Your latest AI art stream was magical.");
   const [error, setError] = useState<string | null>(null);
-  const [agentStatus, setAgentStatus] = useState<string | null>(null);
 
   // Chat
-  type ChatMessage = { role: "user" | "assistant"; content: string; products?: { name?: string; priceUsd?: string; slug?: string }[] };
+  type ChatMessage = { role: "user" | "assistant"; content: string; products?: { name?: string; priceUsd?: string; slug?: string }[]; payAmount?: number; payDisplay?: string; payPrompt?: { amount: number; display: string } };
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
@@ -27,54 +21,13 @@ export default function HomePage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = async () => {
-    const text = chatInput.trim();
-    if (!text || chatLoading) return;
-    setChatInput("");
-    const userMsg: ChatMessage = { role: "user", content: text };
-    setMessages((prev) => [...prev, userMsg]);
-    setChatLoading(true);
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, history: messages }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Request failed");
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: data.reply, products: data.referenced_products },
-      ]);
-    } catch {
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Sorry, something went wrong. Please try again." },
-      ]);
-    } finally {
-      setChatLoading(false);
-    }
-  };
-
-  const amountInUsd = useMemo(() => {
-    if (!isCustom) return selectedAmount;
-    const parsed = Number(customAmount);
-    if (!Number.isFinite(parsed) || parsed <= 0) return 0;
-    return Math.max(0.01, Math.round(parsed * 100) / 100);
-  }, [customAmount, isCustom, selectedAmount]);
-
-  const handleCheckout = async () => {
+  const handleChatCheckout = async (amountUsd: number) => {
     setError(null);
-    const amountCents = Math.round(amountInUsd * 100);
+    const amountCents = Math.round(amountUsd * 100);
     if (!email.trim() || !name.trim()) {
-      setError("Name and email are required.");
+      setError("Name and email are required to complete payment.");
       return;
     }
-    if (amountCents <= 0) {
-      setError("Please choose a valid tip amount.");
-      return;
-    }
-
     const result = await createCheckout({
       type: "AMOUNT",
       title: "Tip Cindy - AI Art Sorceress",
@@ -90,33 +43,80 @@ export default function HomePage() {
       requireCustomerData: ["name", "email"],
       metadata: {
         creator: "cindy-ai-art-sorceress",
-        tipUsd: String(amountInUsd),
-        source: "human_ui",
+        tipUsd: String(amountUsd),
+        source: "chat_ui",
       },
     });
-
     if (result.error) {
       setError(result.error.message);
       return;
     }
-
     window.location.href = result.data.checkoutUrl;
   };
 
-  const simulateAgentTip = async () => {
-    setAgentStatus("Creating L402 challenge...");
-    setError(null);
+  const handlePayYes = (msgIndex: number, amount: number, display: string) => {
+    setMessages((prev) =>
+      prev.map((m, i) =>
+        i === msgIndex ? { ...m, payAmount: amount / 1000, payDisplay: display, payPrompt: undefined } : m
+      )
+    );
+  };
 
-    const challenge = await fetch("/api/agent-tip");
-    if (challenge.status !== 402) {
-      setAgentStatus("Agent endpoint returned data directly (already authorized).");
+  const handlePayNo = (msgIndex: number) => {
+    setMessages((prev) =>
+      prev.map((m, i) => (i === msgIndex ? { ...m, payPrompt: undefined } : m))
+    );
+  };
+
+  const sendMessage = async () => {
+    const text = chatInput.trim();
+    if (!text || chatLoading) return;
+    setChatInput("");
+    const userMsg: ChatMessage = { role: "user", content: text };
+    setMessages((prev) => [...prev, userMsg]);
+
+    // Detect "pay $X" intent — amount is X/100 USD
+    const payMatch = text.match(/^pay\s+\$(\d+(?:\.\d+)?)/i);
+    if (payMatch) {
+      const originalValue = payMatch[1];
+      const amountUsd = parseFloat(originalValue) / 100;
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: `Ready to send a payment of $${originalValue}. Hit the button below to confirm.`,
+          payAmount: amountUsd,
+          payDisplay: originalValue,
+        },
+      ]);
       return;
     }
 
-    const challengeData = await challenge.json();
-    setAgentStatus(
-      `402 received. Agents should pay invoice then retry with Authorization: L402 ${challengeData.macaroon}:<preimage>`
-    );
+    setChatLoading(true);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text, history: messages }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Request failed");
+      const priceMatch = (data.reply as string).match(/\$(\d+(?:\.\d{1,2})?)/);
+      const assistantMsg: ChatMessage = {
+        role: "assistant",
+        content: data.reply,
+        products: data.referenced_products,
+        ...(priceMatch ? { payPrompt: { amount: parseFloat(priceMatch[1]), display: priceMatch[1] } } : {}),
+      };
+      setMessages((prev) => [...prev, assistantMsg]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Sorry, something went wrong. Please try again." },
+      ]);
+    } finally {
+      setChatLoading(false);
+    }
   };
 
   return (
@@ -126,73 +126,6 @@ export default function HomePage() {
           <h1 className="title">Delight Me - Hanhan's Agent Buyer</h1>
         </header>
 
-        <section className="section">
-          <h2>Leave a tip</h2>
-          <div className="field">
-            <label htmlFor="name">Name</label>
-            <input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Avery" />
-          </div>
-          <div className="field">
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="avery@example.com"
-            />
-          </div>
-
-          <div className="field">
-            <label>Amount</label>
-            <div className="amountGrid">
-              {PRESET_AMOUNTS.map((amount) => (
-                <button
-                  key={amount}
-                  type="button"
-                  className={`amountButton ${!isCustom && selectedAmount === amount ? "active" : ""}`}
-                  onClick={() => {
-                    setSelectedAmount(amount);
-                    setIsCustom(false);
-                  }}
-                >
-                  ${amount}
-                </button>
-              ))}
-              <button
-                type="button"
-                className={`amountButton ${isCustom ? "active" : ""}`}
-                onClick={() => setIsCustom(true)}
-              >
-                Custom
-              </button>
-            </div>
-          </div>
-
-          {isCustom && (
-            <div className="field">
-              <label htmlFor="customAmount">Custom amount (USD)</label>
-              <input
-                id="customAmount"
-                type="number"
-                min={1}
-                value={customAmount}
-                onChange={(e) => setCustomAmount(e.target.value)}
-              />
-            </div>
-          )}
-
-          <div className="field">
-            <label htmlFor="note">Message to Cindy</label>
-            <textarea id="note" value={note} onChange={(e) => setNote(e.target.value)} />
-          </div>
-
-          <div className="actions">
-            <button className="primary" onClick={handleCheckout} disabled={isLoading}>
-              {isLoading ? "Creating checkout..." : `Tip $${amountInUsd}`}
-            </button>
-          </div>
-        </section>
         <section className="section">
           <h2>Chat with our assistant</h2>
           <p>Ask about products, get recommendations, or find the right coffee for you.</p>
@@ -211,6 +144,29 @@ export default function HomePage() {
                       </span>
                     ))}
                   </div>
+                )}
+                {msg.role === "assistant" && msg.payPrompt && msg.payAmount === undefined && (
+                  <div style={{ marginTop: "8px" }}>
+                    <p>Would you like to pay ${msg.payPrompt.display}?</p>
+                    <button
+                      className="primary"
+                      style={{ marginRight: "8px" }}
+                      onClick={() => handlePayYes(i, msg.payPrompt!.amount, msg.payPrompt!.display)}
+                    >
+                      Yes
+                    </button>
+                    <button onClick={() => handlePayNo(i)}>No</button>
+                  </div>
+                )}
+                {msg.role === "assistant" && msg.payAmount !== undefined && (
+                  <button
+                    className="primary"
+                    style={{ marginTop: "8px" }}
+                    onClick={() => handleChatCheckout(msg.payAmount!)}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Creating checkout..." : `Confirm to pay $${msg.payDisplay ?? msg.payAmount!.toFixed(2)}`}
+                  </button>
                 )}
               </div>
             ))}
