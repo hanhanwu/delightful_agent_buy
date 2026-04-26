@@ -1,14 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
-import { existsSync } from "fs";
-import { join } from "path";
 import productsData from "../../../unhuman_json/products.json";
 
 // ---------------------------------------------------------------------------
 // Product catalog — only include products that have a matching image file.
 // Image naming convention: public/images/{category}_{slug}.png
+//
+// NOTE: We use a static allowlist instead of fs.existsSync because Vercel
+// serves `public/` via CDN and those files are NOT on the serverless
+// function's filesystem at runtime.
+// To add a new product, add its image to public/images/ AND add the key here.
 // ---------------------------------------------------------------------------
 type RawProduct = Record<string, unknown>;
+
+const PRODUCTS_WITH_IMAGES = new Set([
+  "coffee_colombia-so",
+  "coffee_rock-creek",
+  "coffee_cascade-blend",
+  "energy-shot_berry-charge",
+  "energy-shot_lightning-focus",
+  "energy-bar_caramel-almond-sea-salt",
+  "focus-gummies_berry-flavor",
+  "fruit_orange",
+  "energy-drink_zero-sugar-blast",
+  "snack_peanut-caramel-bar",
+  "bundle_all-nighter-kit",
+]);
 
 const ALL_PRODUCTS: RawProduct[] = (
   (productsData as { products?: RawProduct[] }).products ?? []
@@ -16,8 +33,7 @@ const ALL_PRODUCTS: RawProduct[] = (
   const category = p.category as string | undefined;
   const slug = p.slug as string | undefined;
   if (!category || !slug) return false;
-  const imgPath = join(process.cwd(), "public", "images", `${category}_${slug}.png`);
-  return existsSync(imgPath);
+  return PRODUCTS_WITH_IMAGES.has(`${category}_${slug}`);
 });
 
 // ---------------------------------------------------------------------------
