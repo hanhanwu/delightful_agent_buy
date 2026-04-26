@@ -123,12 +123,7 @@ export default function HomePage() {
     <main className="container">
       <div className="card">
         <header>
-          <p className="subtitle">Creator Platform Demo</p>
-          <h1 className="title">Cindy - AI Art Sorceress</h1>
-          <p>
-            Support Cindy with Lightning-powered tips. This demo showcases moneydevkit checkout,
-            customer capture, and L402 flow for AI agents.
-          </p>
+          <h1 className="title">Delight Me - Hanhan's Agent Buyer</h1>
         </header>
 
         <section className="section">
@@ -197,23 +192,6 @@ export default function HomePage() {
               {isLoading ? "Creating checkout..." : `Tip $${amountInUsd}`}
             </button>
           </div>
-        </section>
-
-        <section className="section">
-          <h2>AI Agent Tip (L402)</h2>
-          <p>
-            This endpoint is protected by L402. Agents receive an HTTP 402 challenge, pay the
-            invoice, and retry with an authorization proof.
-          </p>
-          <div className="actions">
-            <button className="secondary" type="button" onClick={simulateAgentTip}>
-              Request L402 Challenge
-            </button>
-          </div>
-          {agentStatus && <p className="status">{agentStatus}</p>}
-          <p className="status">
-            Endpoint: <span className="code">/api/agent-tip</span>
-          </p>
         </section>
         <section className="section">
           <h2>Chat with our assistant</h2>
