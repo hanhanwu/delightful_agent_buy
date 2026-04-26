@@ -8,8 +8,7 @@
 * `pip install -r requirements.txt`
 * `cp .env.example .env`
 
-* `cd backend`
-* `uvicorn app.main:app --reload --port 8000` 🚀
+### Test Locally (before Vercel deployment)
 * `cd web`
   * `netstat -ano | grep :3000` check whether local port is busy
   * `taskkill //PID <PID> //F` kill what occupies port 3000
@@ -23,9 +22,9 @@
 * Go through this link: https://docs.moneydevkit.com/examples/tip-jar#cursor, cursor agent will setup for you
 
 ### Deploy to Vercel
-* Vercel connect yo github repo
+* Vercel connect to github repo
 * Select web/ as root directory
-* Add `MDK_ACCESS_TOKEN` and `MDK_MNEMONIC` as env variables
+* Add environment variables to Vercel
 * `npx plugins add vercel/vercel-plugin`
 * `cd web`
   * `npm install groq-sdk`
