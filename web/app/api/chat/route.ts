@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
   const references = selectRelevant(message, ALL_PRODUCTS);
 
   const systemPrompt = `You are a friendly shopping assistant. \
-You sell coffee, energy shots, energy bars, energy drinks, snacks, bundles, and fruit. \
+You sell coffee, energy shots, energy bars, energy drinks, snacks, bundles, focus gummies, and fruit. \
 Recommend products ONLY from the catalog below.
 
 ALWAYS respond with valid JSON in this exact shape — no extra keys, no markdown outside the JSON block:
@@ -95,8 +95,10 @@ ALWAYS respond with valid JSON in this exact shape — no extra keys, no markdow
 
 Rules:
 - top3 must always contain exactly 3 items chosen from the catalog.
+- Each slug in top3 must be UNIQUE — never repeat the same slug twice.
 - reason must be one concise sentence tailored to the user's request.
-- If the user mentions a specific category, prefer products from that category first.
+- If the user mentions a specific category, prefer products from that category first, but still pick 3 different slugs.
+- Spread recommendations across different categories when the query is general.
 
 Catalog:
 ${JSON.stringify(references, null, 2)}`;
@@ -121,7 +123,15 @@ ${JSON.stringify(references, null, 2)}`;
     });
 
     const raw = completion.choices[0]?.message?.content ?? "{}";
-    const { reply, top3 } = parseStructuredReply(raw);
+    const { reply, top3: rawTop3 } = parseStructuredReply(raw);
+
+    // Deduplicate slugs — keep first occurrence of each slug
+    const seen = new Set<string>();
+    const top3 = rawTop3.filter((pick) => {
+      if (seen.has(pick.slug)) return false;
+      seen.add(pick.slug);
+      return true;
+    });
 
     // Attach full product details to each top3 pick
     const top3WithDetails = top3.map((pick) => {

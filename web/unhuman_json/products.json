@@ -59,130 +59,77 @@
         "ground": "COF-GND-12O-CSD-BOX"
       }
     },
-    {
-    "category": "energy-shot",
-    "slug": "lightning-focus",
-    "name": "Lightning Focus Shot",
-    "description": "Fast-acting energy shot built for sleep-deprived minds. Sharp boost without the crash. Citrus, slightly bitter, clean finish.",
-    "caffeineMg": 200,
-    "flavorNotes": [
-      "Citrus",
-      "Bitter",
-      "Clean"
-    ],
-    "priceUsd": "$3.50",
-    "priceCents": 350,
-    "skus": {
-      "single": "ENG-SHOT-LTG-1PK",
-      "pack": "ENG-SHOT-LTG-12PK"
-    }
-  },
   {
     "category": "energy-shot",
     "slug": "berry-charge",
     "name": "Berry Charge Shot",
-    "description": "Smooth berry-flavored energy shot with moderate caffeine. Designed for sustained focus during long coding sessions.",
+    "description": "Smooth berry-flavored energy shot with 150mg caffeine. Designed for sustained focus during long coding or work sessions.",
     "caffeineMg": 150,
     "flavorNotes": [
       "Berry",
       "Sweet",
       "Mild Tart"
     ],
-    "priceUsd": "$3.00",
-    "priceCents": 300,
+    "priceUsd": "$30.00",
+    "priceCents": 3000,
     "skus": {
       "single": "ENG-SHOT-BRY-1PK",
       "pack": "ENG-SHOT-BRY-12PK"
     }
   },
   {
-    "category": "energy-bar",
-    "slug": "choco-protein-bar",
-    "name": "Choco Protein Bar",
-    "description": "Dense and satisfying bar with chocolate and nuts. Keeps you full and stable when meals are skipped.",
-    "calories": 250,
-    "proteinG": 12,
-    "flavorNotes": [
-      "Chocolate",
-      "Nutty",
-      "Rich"
-    ],
-    "priceUsd": "$2.50",
-    "priceCents": 250,
-    "skus": {
-      "single": "ENG-BAR-CHO-1PK",
-      "box": "ENG-BAR-CHO-12PK"
-    }
-  },
-  {
-    "category": "energy-bar",
-    "slug": "peanut-caramel-bar",
-    "name": "Peanut Caramel Bar",
-    "description": "Sweet and salty combo with quick carbs and lasting energy. Perfect for late-night momentum.",
-    "calories": 270,
-    "proteinG": 10,
-    "flavorNotes": [
-      "Peanut",
-      "Caramel",
-      "Salty"
-    ],
-    "priceUsd": "$2.75",
-    "priceCents": 275,
-    "skus": {
-      "single": "ENG-BAR-PNT-1PK",
-      "box": "ENG-BAR-PNT-12PK"
-    }
-  },
-  {
-    "category": "energy-drink",
-    "slug": "zero-sugar-blast",
-    "name": "Zero Sugar Blast",
-    "description": "Carbonated energy drink with zero sugar and a clean, crisp taste. High caffeine, no heaviness.",
-    "caffeineMg": 160,
+    "category": "energy-shot",
+    "slug": "lightning-focus",
+    "name": "Lightning Focus Shot",
+    "description": "High-powered 200mg caffeine shot for when you need maximum alertness fast. Clean energy with no crash.",
+    "caffeineMg": 200,
     "flavorNotes": [
       "Citrus",
       "Crisp",
-      "Light"
+      "Light Sweet"
     ],
-    "priceUsd": "$2.99",
-    "priceCents": 299,
+    "priceUsd": "$35.00",
+    "priceCents": 3500,
     "skus": {
-      "can": "ENG-DRK-ZSB-1CAN",
-      "pack": "ENG-DRK-ZSB-12PK"
+      "single": "ENG-SHOT-LTF-1PK",
+      "pack": "ENG-SHOT-LTF-12PK"
     }
   },
   {
-    "category": "snack",
-    "slug": "focus-gummies",
-    "name": "Focus Gummies",
-    "description": "Caffeinated gummies for a fun, controlled energy boost. Easy to dose, easy to share.",
-    "caffeineMg": 100,
+    "category": "energy-bar",
+    "slug": "caramel-almond-sea-salt",
+    "name": "Caramel Almond Sea Salt Bar",
+    "description": "Dense and satisfying bar with caramel, almonds, and sea salt. Keeps you full and stable when meals are skipped.",
+    "calories": 250,
+    "proteinG": 12,
     "flavorNotes": [
-      "Fruit",
-      "Sweet",
-      "Chewy"
+      "Caramel",
+      "Almond",
+      "Sea Salt"
     ],
-    "priceUsd": "$4.50",
-    "priceCents": 450,
+    "priceUsd": "$15.00",
+    "priceCents": 1500,
     "skus": {
-      "pack": "ENG-GUM-FCS-1PK",
-      "bulk": "ENG-GUM-FCS-6PK"
+      "single": "ENG-BAR-CAS-1PK",
+      "box": "ENG-BAR-CAS-12PK"
     }
   },
   {
-    "category": "bundle",
-    "slug": "all-nighter-kit",
-    "name": "All-Nighter Survival Kit",
-    "description": "Curated combo of energy shots, bars, and snacks to keep you going through the night. Balanced for quick boost + sustained energy.",
-    "includes": [
-      "2x Lightning Focus Shot",
-      "2x Choco Protein Bar",
-      "1x Focus Gummies"
+    "category": "focus-gummies",
+    "slug": "berry-flavor",
+    "name": "Berry Flavor Gummies",
+    "description": "Smooth berry-flavored gummies with moderate caffeine. Designed for sustained focus during long coding sessions.",
+    "caffeineMg": 150,
+    "flavorNotes": [
+      "Berry",
+      "Sweet",
+      "Mild Tart"
     ],
-    "priceUsd": "$12.00",
-    "priceCents": 1200,
+    "priceUsd": "$35.00",
+    "priceCents": 3500,
     "skus": {
-      "bundle": "BND-ALLNGT-STD"
+      "single": "ENG-GUM-BRY-1PK",
+      "pack": "ENG-GUM-BRY-12PK"
     }
   },
   {
@@ -200,6 +147,60 @@
       "each": "FRT-ORG-NVL-EA",
       "bag_3lb": "FRT-ORG-NVL-3LB",
       "bag_5lb": "FRT-ORG-NVL-5LB"
+    }
+  },
+  {
+    "category": "energy-drink",
+    "slug": "zero-sugar-blast",
+    "name": "Zero Sugar Blast",
+    "description": "Carbonated zero-sugar energy drink with 160mg caffeine, B-vitamins, and electrolytes. Full energy without the sugar crash.",
+    "caffeineMg": 160,
+    "flavorNotes": [
+      "Tropical",
+      "Citrus Burst",
+      "Light Fizz"
+    ],
+    "priceUsd": "$30.00",
+    "priceCents": 3000,
+    "skus": {
+      "single": "ENG-DRK-ZSB-1PK",
+      "pack": "ENG-DRK-ZSB-12PK"
+    }
+  },
+  {
+    "category": "snack",
+    "slug": "peanut-caramel-bar",
+    "name": "Peanut Caramel Bar",
+    "description": "Chunky peanut butter and caramel protein bar. High protein, moderate sugar — a reliable desk snack that keeps hunger away.",
+    "calories": 240,
+    "proteinG": 14,
+    "flavorNotes": [
+      "Peanut Butter",
+      "Caramel",
+      "Sweet Salt"
+    ],
+    "priceUsd": "$28.00",
+    "priceCents": 2800,
+    "skus": {
+      "single": "SNK-PCB-1PK",
+      "box": "SNK-PCB-12PK"
+    }
+  },
+  {
+    "category": "bundle",
+    "slug": "all-nighter-kit",
+    "name": "All-Nighter Kit",
+    "description": "Everything you need to push through a long night: one energy shot, one energy bar, one focus gummy pack, and a bag of coffee. Bundled at a discount.",
+    "includes": [
+      "Berry Charge Shot",
+      "Caramel Almond Sea Salt Bar",
+      "Berry Flavor Gummies",
+      "Rock Creek Coffee"
+    ],
+    "priceUsd": "$120.00",
+    "priceCents": 12000,
+    "skus": {
+      "kit": "BND-ANK-1PK"
     }
   }
   ]
