@@ -11,8 +11,8 @@
 * `cd backend`
 * `uvicorn app.main:app --reload --port 8000` 🚀
 * `cd web`
-  * `netstat -ano | grep :3000`
-  * `taskkill //PID <PID> //F`
+  * `netstat -ano | grep :3000` check whether local port is busy
+  * `taskkill //PID <PID> //F` kill what occupies port 3000
 * `npm run dev` 🚀, this will launch http://localhost:5173 within Cursor
 * `npx cloudflared tunnel --url http://localhost:3000`  --> open its public site `https://faster-participant-compromise-utils.trycloudflare.com`
 
@@ -27,3 +27,5 @@
 * Select web/ as root directory
 * Add `MDK_ACCESS_TOKEN` and `MDK_MNEMONIC` as env variables
 * `npx plugins add vercel/vercel-plugin`
+* `cd web`
+  * `npm install groq-sdk`

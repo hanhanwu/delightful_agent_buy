@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useCheckout } from "@moneydevkit/nextjs";
 
 const PRESET_AMOUNTS = [5, 10, 25] as const;
@@ -15,6 +15,46 @@ export default function HomePage() {
   const [note, setNote] = useState("Your latest AI art stream was magical.");
   const [error, setError] = useState<string | null>(null);
   const [agentStatus, setAgentStatus] = useState<string | null>(null);
+
+  // Chat
+  type ChatMessage = { role: "user" | "assistant"; content: string; products?: { name?: string; priceUsd?: string; slug?: string }[] };
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const sendMessage = async () => {
+    const text = chatInput.trim();
+    if (!text || chatLoading) return;
+    setChatInput("");
+    const userMsg: ChatMessage = { role: "user", content: text };
+    setMessages((prev) => [...prev, userMsg]);
+    setChatLoading(true);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text, history: messages }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Request failed");
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: data.reply, products: data.referenced_products },
+      ]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Sorry, something went wrong. Please try again." },
+      ]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
 
   const amountInUsd = useMemo(() => {
     if (!isCustom) return selectedAmount;
@@ -175,6 +215,55 @@ export default function HomePage() {
             Endpoint: <span className="code">/api/agent-tip</span>
           </p>
         </section>
+        <section className="section">
+          <h2>Chat with our assistant</h2>
+          <p>Ask about products, get recommendations, or find the right coffee for you.</p>
+          <div className="chatMessages">
+            {messages.length === 0 && (
+              <p className="chatEmpty">Ask me anything — e.g. &ldquo;What&apos;s a good light roast?&rdquo;</p>
+            )}
+            {messages.map((msg, i) => (
+              <div key={i} className={`chatBubble ${msg.role}`}>
+                <p>{msg.content}</p>
+                {msg.role === "assistant" && msg.products && msg.products.length > 0 && (
+                  <div className="chatProducts">
+                    {msg.products.map((p, j) => (
+                      <span key={j} className="chatProduct">
+                        {p.name}{p.priceUsd ? ` — ${p.priceUsd}` : ""}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+            {chatLoading && (
+              <div className="chatBubble assistant">
+                <span className="chatTyping">Thinking…</span>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+          <form
+            className="chatForm"
+            onSubmit={(e) => { e.preventDefault(); sendMessage(); }}
+          >
+            <input
+              className="chatInput"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              placeholder="Ask about products…"
+              disabled={chatLoading}
+            />
+            <button
+              type="submit"
+              className="primary"
+              disabled={chatLoading || !chatInput.trim()}
+            >
+              Send
+            </button>
+          </form>
+        </section>
+
         {error && <p className="error">{error}</p>}
       </div>
     </main>
