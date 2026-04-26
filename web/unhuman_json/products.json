@@ -136,7 +136,8 @@
     "category": "fruit",
     "slug": "orange",
     "name": "Orange",
-    "description": "Fresh and juicy oranges, perfect for a healthy snack or juice.",
+    "description": "Fresh and juicy oranges packed with Vitamin C. Perfect for a healthy snack, fresh juice, or an immune system boost.",
+    "tags": ["vitamin c", "vitamin", "immune", "healthy", "fresh", "juice", "fruit", "natural"],
     "includes": [
       "Navel Orange",
       "Valencia Orange"

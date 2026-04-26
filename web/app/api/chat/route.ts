@@ -1,15 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
+import { existsSync } from "fs";
+import { join } from "path";
 import productsData from "../../../unhuman_json/products.json";
 
 // ---------------------------------------------------------------------------
-// Product catalog — statically imported so Vercel bundles them at build time.
+// Product catalog — only include products that have a matching image file.
+// Image naming convention: public/images/{category}_{slug}.png
 // ---------------------------------------------------------------------------
 type RawProduct = Record<string, unknown>;
 
 const ALL_PRODUCTS: RawProduct[] = (
   (productsData as { products?: RawProduct[] }).products ?? []
-);
+).filter((p) => {
+  const category = p.category as string | undefined;
+  const slug = p.slug as string | undefined;
+  if (!category || !slug) return false;
+  const imgPath = join(process.cwd(), "public", "images", `${category}_${slug}.png`);
+  return existsSync(imgPath);
+});
 
 // ---------------------------------------------------------------------------
 // Groq client — only reads env vars on the server, never exposed to the browser
